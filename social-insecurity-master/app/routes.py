@@ -21,7 +21,7 @@ def index():
         else:
             flash('Sorry, wrong password!')
 
-    elif form.register.is_submitted() and form.register.submit.data:
+    elif form.register.validate_on_submit(): # Changed to validate on submit
         query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
          form.register.last_name.data, form.register.password.data))
         return redirect(url_for('index'))
