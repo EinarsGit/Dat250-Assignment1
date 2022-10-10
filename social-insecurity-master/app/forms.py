@@ -5,7 +5,6 @@ from wtforms.fields.html5 import DateField
 
 # defines all forms in the application, these will be instantiated by the template,
 # and the routes.py will read the values of the fields
-# TODO: There was some important security feature that wtforms provides, but I don't remember what; implement it
 
 class LoginForm(FlaskForm): # Nothing changed for LoginForm
     username = StringField('Username', render_kw={'placeholder': 'Username'})

@@ -1,17 +1,27 @@
 from flask import Flask, g
 from config import Config
 from flask_bootstrap import Bootstrap
-#from flask_login import LoginManager
+from flask_login import LoginManager
 import sqlite3
 import os
+from datetime import timedelta
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_wtf.csrf import CSRFProtect
 
 # create and configure app
 app = Flask(__name__)
 Bootstrap(app)
 app.config.from_object(Config)
+limiter = Limiter(app, key_func=get_remote_address)
+csrf = CSRFProtect(app)
 
-# TODO: Handle login management better, maybe with flask_login?
-#login = LoginManager(app)
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(hours=24)
+app.config['REMEMBER_COOKIE_NAME'] = 'remember_me_cookie'
+
+
+login_manager = LoginManager(app)
+login_manager.login_view = '/index'
 
 # get an instance of the db
 def get_db():
@@ -29,16 +39,14 @@ def init_db():
             db.cursor().executescript(f.read())
         db.commit()
 
-# perform generic query, not very secure yet
-def query_db(query, one=False):
+# perform query
+def secure_query(query,args,one=False):
     db = get_db()
-    cursor = db.execute(query)
-    rv = cursor.fetchall()
-    cursor.close()
+    cur = db.execute(query, args)
+    rv = cur.fetchall()
+    cur.close()
     db.commit()
-    return (rv[0] if rv else None) if one else rv
-
-# TODO: Add more specific queries to simplify code
+    return(rv[0] if rv else None) if one else rv
 
 # automatically called when application is closed, and closes db connection
 @app.teardown_appcontext
