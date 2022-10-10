@@ -22,11 +22,14 @@ def index():
             flash('Sorry, wrong password!')
 
     elif form.register.validate_on_submit(): # Changed to validate on submit
-        query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
+        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.register.username.data), one=True)
+        if user == None:
+            query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
          form.register.last_name.data, form.register.password.data))
+        else:   # Changed it so that users can't have the same username.
+            flash('This username already exists.')
         return redirect(url_for('index'))
     return render_template('index.html', title='Welcome', form=form)
-
 
 # content stream page
 @app.route('/stream/<username>', methods=['GET', 'POST'])
