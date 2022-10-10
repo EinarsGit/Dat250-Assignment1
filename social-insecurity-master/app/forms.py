@@ -1,24 +1,24 @@
 from flask_wtf import FlaskForm
+from wtforms.validators import InputRequired, DataRequired, Length, EqualTo, Regexp
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField, FileField
 from wtforms.fields.html5 import DateField
 
 # defines all forms in the application, these will be instantiated by the template,
 # and the routes.py will read the values of the fields
-# TODO: Add validation, maybe use wtforms.validators??
 # TODO: There was some important security feature that wtforms provides, but I don't remember what; implement it
 
-class LoginForm(FlaskForm):
+class LoginForm(FlaskForm): # Nothing changed for LoginForm
     username = StringField('Username', render_kw={'placeholder': 'Username'})
     password = PasswordField('Password', render_kw={'placeholder': 'Password'})
-    remember_me = BooleanField('Remember me') # TODO: It would be nice to have this feature implemented, probably by using cookies
+    remember_me = BooleanField('Remember me')
     submit = SubmitField('Sign In')
 
-class RegisterForm(FlaskForm):
-    first_name = StringField('First Name', render_kw={'placeholder': 'First Name'})
-    last_name = StringField('Last Name', render_kw={'placeholder': 'Last Name'})
-    username = StringField('Username', render_kw={'placeholder': 'Username'})
-    password = PasswordField('Password', render_kw={'placeholder': 'Password'})
-    confirm_password = PasswordField('Confirm Password', render_kw={'placeholder': 'Confirm Password'})
+class RegisterForm(FlaskForm): # Added validators for each field
+    first_name = StringField('First Name', validators=[InputRequired(message="Info: Name required"), Length(max=25)], render_kw={'placeholder': 'First Name'})
+    last_name = StringField('Last Name', validators=[InputRequired(message="Info: Surname required"), Length(max=25)], render_kw={'placeholder': 'Last Name'})
+    username = StringField('Username', validators=[InputRequired(message="Info: Username required"), Length(max=25), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0, 'Info: Username must contain only letters, numbers, dots or underscores. And must not start with a numeric.')], render_kw={'placeholder': 'Username'})
+    password = PasswordField('Password', validators=[DataRequired(message="Info: Password required"), Length(min=4, max=30, message="Info: The password bust be between 4 and 30 characters"), EqualTo('confirm_password', message='Info: Passwords do not match.'), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0, 'Info: Password must contain capital letters, numbers, dots or underscores')], render_kw={'placeholder': 'Password'})
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired("Info: Confirmation needed")], render_kw={'placeholder': 'Confirm Password'})
     submit = SubmitField('Sign Up')
 
 class IndexForm(FlaskForm):
